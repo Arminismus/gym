@@ -34,7 +34,7 @@ class PigAgent:
     def get_value(self,obs):
         return np.dot(obs,self.weights)
 
-    def get_action(self,obs) -> int:
+    def get_action(self,obsgit ) -> int:
         pass
 
 

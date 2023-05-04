@@ -16,8 +16,10 @@ class Pig:
         self.turn = None
         self.die_sides = die_sides
 
-    def determine_turn(self):
+    def start(self):
         #we return the keys to easily use them elsewhere
+
+        #determine the turn
         players = list(self.actions.keys())
         self.turn = np.random.choice(players)
     
@@ -44,6 +46,16 @@ class Pig:
         else:
             return Pig.STICK    
     
+
+    
+    def step(self):
+        action = self.player_action()
+        if action == Pig.CHANGE:
+            self.change_turn()
+
+        self.actions[self.turn].append(action)
+    
+    
     def play(self):
 
         #determine how long the game is
@@ -53,14 +65,10 @@ class Pig:
         # if he is continuing, it is still their turn, 
         # if he changes, we change the turn.
         #
-        self.determine_turn()
+        self.start()
         
         for _ in range(self.game_steps):
-            action = self.player_action()
-            if action == Pig.CHANGE:
-                self.change_turn()
-
-            self.actions[self.turn].append(action)
+            self.step()
 
             time.sleep(1)
 
