@@ -1,4 +1,4 @@
-#Pig is a simple dice game where players take turns rolling a single die as many times as they wish, adding all roll results to a running total, but losing their gained score for the turn if they roll a 1⁴. The game is best with two players, but it can work with more people¹. 
+Pig is a simple dice game where players take turns rolling a single die as many times as they wish, adding all roll results to a running total, but losing their gained score for the turn if they roll a 1⁴. The game is best with two players, but it can work with more people¹. 
 
 On a turn, a player rolls the die repeatedly. The goal is to accumulate as many points as possible, adding the numbers rolled on each die to a running total. However, if the player rolls a 1, their turn is over and they lose all the points they accumulated during that turn¹. 
 
