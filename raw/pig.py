@@ -5,7 +5,6 @@ from gymnasium import Env
 class PigEnv(Env):
     CHANGE = 1
     STICK = 0
-
     LOSE = 1
     AGENT_INDEX = 1
 
@@ -17,13 +16,22 @@ class PigEnv(Env):
         self.turn = None
         self.die_sides = die_sides
     
-    def change_turn(self):
+    def change_turn(self,seed):
         self.turn = 1 - self.turn
     
-    def agent_start(self):
+    #start of an episode
+    def reset(self):
         #for the sake of simplicity, it is always the agent's turn
         self.turn = PigEnv.AGENT_INDEX
     
+   
+    def step(self,action):
+        
+        return obs, reward, terminated, truncated, info
+   
+   
+   
+   
     def time_step(self):
         #roll die
         die = np.random.randint(1, self.die_sides + 1)
