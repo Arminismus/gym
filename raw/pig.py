@@ -16,33 +16,29 @@ class PigEnv(Env):
     STICK = 0
     LOSE = 1
     AGENT_INDEX = 1
-
+   
+   
     def __init__(self, die_sides = 6,max_turns = 20,opponent_policy = random_opponent_policy):
+        self.opponent_policy = opponent_policy
+        self.max_turns = max_turns
+         #implement this
+        self.action_space = ['bank':0, 'roll':1]
+        self.die_sides = die_sides
+        self.observation_space = np.ones(4)
+
+        #set the stage
+        self.reset()
+
+    def reset(self):
         self.actions_taken = {1:[],0:[]} #a dictionary that can be accessed
         self.points = {1:0,0:0}
         self.agent_buffer = 0 #current run of points, will be saved in bank
+        self.observations = None
+        self.remaining_turns = self.max_turns
 
-        self.observations = None #implement this
-        self.opponent_policy = opponent_policy
-        self.max_turns = max_turns
-
-        self.action_space = ['bank':0, 'roll':1]
-        #the state is 
-        self.observation_space = np.ones(4)
-        #self.points, for the agent and the opponent
-        #self.agent_buffer
-    
-        self.turn = None
-        self.die_sides = die_sides
-        self.remaining_turns = max_turns
-        
-        #the die is rolled automatically on the first try of the 
-        #first turn for each player, here only for the agent
+        #roll the first die for the agent
         self.die = np.random.randint(1, self.die_sides + 1) 
-        self.agent_buffer += self.die
-            
-    def _get_obs(self):
-        pass
+        self.agent_buffer += self.die        
 
     def opponent_step(self):
         '''The opponent has a 50/50 policy by default'''
@@ -110,14 +106,7 @@ class PigEnv(Env):
         truncated = 0
             
         self.remaining_turns -= 1
-        return observations, reward, terminated, truncated, info
-   
-    def reset(self):
-        #for the sake of simplicity, it is always the agent's turn
-        #at the begining of the game
-        #self.turn = PigEnv.AGENT_INDEX
-   
-   
+        return observations, reward, terminated, truncated, info   
     
             
 game = PigEnv(game_steps=30)
