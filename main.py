@@ -1,6 +1,7 @@
 import gymnasium as gym
 from env.pig import PigEnv
 
+#This is the opponent's policy, which random for now.
 def policy(observation):
     if observation[0] < 20:
         return 0

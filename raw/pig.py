@@ -1,6 +1,8 @@
 import numpy as np
 import time
-class PigEnv:
+from gymnasium import Env
+
+class PigEnv(Env):
     CHANGE = 1
     STICK = 0
 
@@ -14,13 +16,13 @@ class PigEnv:
     
         self.turn = None
         self.die_sides = die_sides
-
-    def agent_start(self):
-        #for the sake of simplicity, it is always the agent's turn
-        self.turn = PigEnv.AGENT_INDEX
     
     def change_turn(self):
         self.turn = 1 - self.turn
+    
+    def agent_start(self):
+        #for the sake of simplicity, it is always the agent's turn
+        self.turn = PigEnv.AGENT_INDEX
     
     def time_step(self):
         #roll die
@@ -42,7 +44,7 @@ class PigEnv:
         else:
             return PigEnv.STICK    
     
-    def agent_step(self):
+    def step(self):
         action = self.player_action()
         if action == PigEnv.CHANGE:
             self.change_turn()
