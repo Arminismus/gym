@@ -57,24 +57,17 @@ class Pig:
     
     
     def play(self):
-
-        #determine how long the game is
-        #determine whose turn it is
-
-        #for the person whose turn it is, takes his action.
-        # if he is continuing, it is still their turn, 
-        # if he changes, we change the turn.
-        #
         self.start()
-        
         for _ in range(self.game_steps):
             self.step()
-
-            time.sleep(1)
-
         #print("actions:",self.actions)
         #print('points:',self.points)
-        return self.actions,self.points
+        
+        #our agent is agent 1
+        if self.points[0] > self. points[1]:
+            return 1
+        else:
+            return 0
             
 game = Pig(game_steps=30)
 game.play()
