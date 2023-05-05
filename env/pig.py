@@ -56,43 +56,55 @@ class PigEnv(Env):
             #there will at least be one roll for the opponent
             
             #make the decision
-            done = bool(self.opponent_policy(self.observation)) 
+            done = bool(self.opponent_policy(self.observation))
+            
+            
             self.die = np.random.randint(1, self.die_sides + 1)
+            print('He rolled!:',self.die)
             
             if self.die == PigEnv.LOSE:
-                #self.points[0] += 0
+                buffer = 0
                 done = True
             else:
                 buffer += self.die 
-        
+       
+        print('he decided to bank!',buffer)
         self.points[0] += buffer                
     
     def step(self,action):
         
+       
         if action == PigEnv.BANK:
             self.points[1] += self.agent_buffer
+            self.agent_buffer = 0
+            print('I banked!',self.agent_buffer)
+            self.opponent_step() #I had forgotten to give the opponent their turn when I banked!
         
-        if action == PigEnv.ROLL:
+        elif action == PigEnv.ROLL:
             self.die = np.random.randint(1, self.die_sides + 1)
+            print('I rolled!:',self.die)
             
             
             if self.die == PigEnv.LOSE:
                 self.agent_buffer = 0
+                print('I lost my streak!')
+                
                 self.opponent_step()
 
             else:
                 self.agent_buffer += self.die
 
-
-        #if last step
+        
         observations = [self.points[0],self.points[1],self.agent_buffer]
+        
+        #if last step
         if self.remaining_turns == 0:
             self.reward = self.points[1] > self.points[0]
             self.terminated = True
         
         else:
             self.remaining_turns -= 1
-            print(self.remaining_turns)
+            
         
         return observations, self.reward, self.terminated, self.truncated , self.info  
  
