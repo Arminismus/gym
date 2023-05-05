@@ -31,41 +31,32 @@ class PigEnv(Env):
         self.actions_taken = {1:[],0:[]} #a dictionary that can be accessed
         self.points = {1:0,0:0}
         self.agent_buffer = 0 #current run of points, will be saved in bank
-        self.observations = None
         self.remaining_turns = self.max_turns  
 
-        observation = [self.points[0],self.points[1],self.agent_buffer]
+        self.observation = [self.points[0],self.points[1],self.agent_buffer]
+        
         self.reward = 0
         self.terminated = False
-        self.truncatued = False
+        self.truncated = False
         self.info = None
 
-        return observation, self.info  
+        return self.observation, self.info  
 
     #There is no decision making in the first step, since, it is always best to roll first. 
     #can this be learned by the agent?
     #Ha! This should(!) be learned by the agent, so we should let it freely choose! This also makes it easy to implement!
-    def process_game_turn(self):
-        self.die = np.random.randint(1, self.die_sides + 1)
-        if self.die == PigEnv.LOSE:
-            self.agent_buffer = 0
-            #print("{} Lost! it's {}'s Turn.".format(self.turn,1-self.turn))
-            self.opponent_step() 
-        else:
-            self.agent_buffer += self.die
-
+    
     def opponent_step(self):
         '''The opponent has a 50/50 policy by default'''
-        
         done = False
         buffer = 0
         while not done:
             #this is the decision 
             #for the next roll, 
-            #there will at least be one roll
+            #there will at least be one roll for the opponent
             
             #make the decision
-            done = bool(self.opponent_policy(self.observations)) 
+            done = bool(self.opponent_policy(self.observation)) 
             self.die = np.random.randint(1, self.die_sides + 1)
             
             if self.die == PigEnv.LOSE:
@@ -74,62 +65,36 @@ class PigEnv(Env):
             else:
                 buffer += self.die 
         
-        self.points[0] += buffer 
-    
-    def first_step(self,action):
-        self.process_game_turn()
-
-        observations = [self.points[0],self.points[1],self.agent_buffer]
-        reward = 0
-        terminated = 0
-        truncated = 0
-        
-        self.remaining_turns -= 1
-        return observations, reward, terminated, truncated, self.info 
-        
-        
-                   
-    
-    def normal_step(self,action):
-        self.die = np.random.randint(1, self.die_sides + 1)
-        if self.die == PigEnv.LOSE:
-            self.agent_buffer = 0
-            #print("{} Lost! it's {}'s Turn.".format(self.turn,1-self.turn))
-            self.opponent_step()
-
-        else:
-            if action == PigEnv.BANK:
-                self.points[1] += self.agent_buffer
-            if action == PigEnv.ROLL:
-                self.process_game_turn()
-
-        observations = [self.points[0],self.points[1],self.agent_buffer]
-        reward = 0
-        terminated = 0
-        truncated = 0
-            
-        self.remaining_turns -= 1
-        return observations, reward, terminated, truncated, self.info  
-    
-
-    
-    def last_step(self):
-       
-        observations = [self.points[0],self.points[1],self.agent_buffer]
-        reward = self.points[1] > self.points[0]
-        terminated = True
-        truncated = False
-
-        return observations, reward, terminated, truncated, self.info 
-
+        self.points[0] += buffer                
     
     def step(self,action):
-        #if the first step
-        if self.remaining_turns == self.max_turns:
-            return self.first_step(action)
+        
+        if action == PigEnv.BANK:
+            self.points[1] += self.agent_buffer
+        
+        if action == PigEnv.ROLL:
+            self.die = np.random.randint(1, self.die_sides + 1)
             
-        #if the last step
+            
+            if self.die == PigEnv.LOSE:
+                self.agent_buffer = 0
+                self.opponent_step()
+
+            else:
+                self.agent_buffer += self.die
+
+
+        #if last step
+        observations = [self.points[0],self.points[1],self.agent_buffer]
         if self.remaining_turns == 0:
-            return self.last_step()
-        #Normal case
-        self.normal_step()
+            self.reward = self.points[1] > self.points[0]
+            self.terminated = True
+        
+        else:
+            self.remaining_turns -= 1
+            print(self.remaining_turns)
+        
+        return observations, self.reward, self.terminated, self.truncated , self.info  
+ 
+    
+
