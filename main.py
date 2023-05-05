@@ -1,4 +1,4 @@
-import gym
+import gymnasium as gym
 from env.pig import PigEnv
 
 def policy(observation):
