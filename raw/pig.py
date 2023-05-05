@@ -78,40 +78,41 @@ class PigEnv(Env):
                 #self.agent_buffer = 0
                 self.opponent_step()
 
-                observations = [self.points[0],self.points[1],self.agent_buffer]
-                reward = 0
-                terminated = 0
-                truncated = 0
-                
-                self.remaining_turns -= 1
-                return observations, reward, terminated, truncated, info 
+            observations = [self.points[0],self.points[1],self.agent_buffer]
+            reward = 0
+            terminated = 0
+            truncated = 0
+            
+            self.remaining_turns -= 1
+            return observations, reward, terminated, truncated, info 
+            
         
         #if in the midst of play
-        else:
+        if self.remaining_turns == 0:
+                
+            observations = [self.points[0],self.points[1],self.agent_buffer]
+            reward = self.points[1] > self.points[0]
+            terminated = 0
+            truncated = 0
+
+            return observations, reward, terminated, truncated, info
+
+        #Normal case
+        self.die = np.random.randint(1, self.die_sides + 1)
+        if self.die == PigEnv.LOSE:
+            self.agent_buffer = 0
+            #print("{} Lost! it's {}'s Turn.".format(self.turn,1-self.turn))
+            self.opponent_step()
+                        
+        observations = [self.points[0],self.points[1],self.agent_buffer]
+        reward = 0
+        terminated = 0
+        truncated = 0
             
-            if self.remaining_turns == 0:
-                
-                observations = [self.points[0],self.points[1],self.agent_buffer]
-                reward = self.points[1] > self.points[0]
-                terminated = 0
-                truncated = 0
-
-                return observations, reward, terminated, truncated, info
-
-            self.die = np.random.randint(1, self.die_sides + 1)
-            if self.die == PigEnv.LOSE:
-                self.agent_buffer = 0
-                #print("{} Lost! it's {}'s Turn.".format(self.turn,1-self.turn))
-                self.opponent_step()
-                
-                
-                observations = [self.points[0],self.points[1],self.agent_buffer]
-                reward = 0
-                terminated = 0
-                truncated = 0
-                
-                self.remaining_turns -= 1
-                return observations, reward, terminated, truncated, info 
+        self.remaining_turns -= 1
+        return observations, reward, terminated, truncated, info
+    
+            
 
             
 
