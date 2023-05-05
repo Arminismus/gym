@@ -11,18 +11,31 @@ class PigEnv(Env):
     def __init__(self, die_sides = 6,max_turns = 20):
         self.actions_taken = {1:[],0:[]} #a dictionary that can be accessed
         self.points = {1:0,0:0}
+        self.agent_buffer = 0
+
         self.max_turns = max_turns
 
-        self.action_space
+        self.action_space = ['bank':0, 'roll':1]
+        #the state is 
+        self.observation_space = np.ones(4)
+        #self.points, for the agent and the opponent
+        #self.
     
         self.turn = None
         self.die_sides = die_sides
         self.remaining_turns = max_turns
     
+    def _get_obs(self):
+
+
     def opponent_step(self):
+        '''The opponent has a 50/50 policy'''
+        
         #roll die
         done = False
         buffer = 0
+
+
         while not done:
             #roll die
             die = np.random.randint(1, self.die_sides + 1)
@@ -39,6 +52,11 @@ class PigEnv(Env):
         #for the sake of simplicity, it is always the agent's turn
         #at the begining of the game
         self.turn = PigEnv.AGENT_INDEX
+        die = np.random.randint(1, self.die_sides + 1) 
+        #all players will want to roll their first time!
+        #this is because even if they lose, they haven't 
+        #lost any potential points, where as they expose themselves
+        #to the possibility of gaining some points!
     
    
     def step(self,action):
