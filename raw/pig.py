@@ -8,26 +8,53 @@ class PigEnv(Env):
     LOSE = 1
     AGENT_INDEX = 1
 
-    def __init__(self, die_sides = 6,game_steps = 20):
-        self.actions = {1:[],0:[]} #a dictionary that can be accessed
+    def __init__(self, die_sides = 6,max_turns = 20):
+        self.actions_taken = {1:[],0:[]} #a dictionary that can be accessed
         self.points = {1:0,0:0}
-        self.game_steps = game_steps
+        self.max_turns = max_turns
+
+        self.action_space
     
         self.turn = None
         self.die_sides = die_sides
+        self.remaining_turns = max_turns
     
-    def change_turn(self,seed):
-        self.turn = 1 - self.turn
-    
+    def opponent_step(self):
+        #roll die
+        done = False
+        buffer = 0
+        while not done:
+            #roll die
+            die = np.random.randint(1, self.die_sides + 1)
+            if die == PigEnv.LOSE:
+                #self.points[0] += 0
+                done = True
+            else:
+                buffer += die 
+        
+        self.points[0] += buffer 
+
     #start of an episode
     def reset(self):
         #for the sake of simplicity, it is always the agent's turn
+        #at the begining of the game
         self.turn = PigEnv.AGENT_INDEX
     
    
     def step(self,action):
-        
-        return obs, reward, terminated, truncated, info
+        #roll die
+        if self.remaining_turns == 0:
+            return obs 
+        die = np.random.randint(1, self.die_sides + 1)
+
+        #check if lost:
+        if die == PigEnv.LOSE:
+            self.points[self.turn] = 0
+            #print("{} Lost! it's {}'s Turn.".format(self.turn,1-self.turn))
+            self.opponent_step()
+
+
+            return obs, reward, terminated, truncated, info
    
    
    
@@ -57,14 +84,14 @@ class PigEnv(Env):
         if action == PigEnv.CHANGE:
             self.change_turn()
 
-        self.actions[self.turn].append(action)
+        self.actions_taken[self.turn].append(action)
     
     
     def epsiode_play(self):
         self.start()
         for _ in range(self.game_steps):
             self.step()
-        #print("actions:",self.actions)
+        #print("actions:",self.actions_taken)
         #print('points:',self.points)
         
         #our agent is agent 1
