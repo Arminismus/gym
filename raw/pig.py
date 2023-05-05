@@ -26,12 +26,21 @@ class PigEnv(Env):
         self.remaining_turns = max_turns
     
     def _get_obs(self):
-
+        pass
 
     def opponent_step(self):
         '''The opponent has a 50/50 policy'''
         
         #roll die
+        die = np.random.randint(1, self.die_sides + 1)
+        if die == PigEnv.LOSE:
+            #self.points[0] += 0
+            done = True
+        else:
+            buffer += die 
+        
+
+
         done = False
         buffer = 0
 
