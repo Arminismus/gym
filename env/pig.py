@@ -1,128 +1,112 @@
-from gym import Env
 import numpy as np
+from gymnasium import Env
 
+
+def random_opponent_policy(observations):
+    return np.random.randint(0,2)
+
+
+#implement this later
+def optimal_opponent_policy(observations):
+    pass
 
 class PigEnv(Env):
-    """
-    ## Description
-
-    This environment is a simple two player game where the goal is to bank as many points as possible.
-    Each turn, the player rolls a die. If the player rolls a 1, they lose all points for that turn and the turn ends.
-    Otherwise, the player can choose to roll again or bank their points. If the player banks their points, the turn ends.
-    If the player rolls again, the points from that roll are added to the turn total and the player can choose to roll again or bank their points.
-    When the player busts of banks the opponent takes their turn. The opponent's turns is skipped and the player's next obervation is the state after the opponent's turn.
-
-
-    ## Observation
-
-    the observation is a numpy array with shape (4, ) where each entry is an integer as follows:
-    0. the player's turn total
-    1. the player's banked points
-    2. the opponent's banked points
-    3. the number of turns that have passed
-
-
-    ## Actions
-
-    The action is an integer with value 0 or 1 where 0 means roll again and 1 means bank points.
-
-
-    ## Reward
-
-    The reward is 0 if the game is not over and 1 if the player wins and -1 if the player loses.
-
-
-    ## Starting State
-
-    The starting state is the player's turn total is 0, the player's banked points is 0, and the opponent's banked points is 0.
-
-
-    ## Episode Termination
-
-    The episode terminates after _max_turns_ at which point the winnter is determined by the player with the most points.
-    """
-    def __init__(self, max_turns=10, max_points=1000):
+    CHANGE = 1
+    STICK = 0
+    LOSE = 1
+    AGENT_INDEX = 1
+   
+   
+    def __init__(self, die_sides = 6,max_turns = 20,opponent_policy = random_opponent_policy):
+        self.opponent_policy = opponent_policy
         self.max_turns = max_turns
-        self.max_points = max_points
+         #implement this
+        self.action_space = {'bank':0, 'roll':1}
+        self.die_sides = die_sides
+        self.observation_space = np.ones(4)
 
-        self.action_space = [0, 1]
-        self.observation_space = [(0, self.max_points), (0, self.max_points), (0, self.max_points), (0, self.max_turns)]
-
+        #set the stage
         self.reset()
 
-    
-
-    def step(self, action):
-
-        reward = 0
-        terminated = False
-        truncated = False
-        info = {}
-
-
-        if action == 0:
-            # roll again
-            die = np.random.randint(1, 7)
-            if die == 1:
-                # bust
-                self.observation[0] = 0
-                
-                # opponent's turn
-                self.observation[2] += self._play_opponent()
-                self.observation[3] += 1
-
-            else:
-                # add to turn total
-                self.observation[0] += die
-
-        elif action == 1:
-            # bank points
-            self.observation[1] += self.observation[0]
-            self.observation[0] = 0
-
-            # opponent's turn
-            self.observation[2] += self._play_opponent()
-            self.observation[3] += 1
-
-        else:
-            raise ValueError("Invalid action")
-        
-        # check if game is over
-        if self.observation[3] >= self.max_turns:
-            # game is over
-            if self.observation[1] > self.observation[2]:
-                # player wins
-                reward = 1
-            elif self.observation[1] < self.observation[2]:
-                # player loses
-                reward = -1
-            else:
-                # tie
-                reward = 0
-
-            terminated = True
-
-
-
-        observation = self.observation[:]
-
-        return observation, reward, terminated, truncated, info
-
-
     def reset(self):
-        self.observation = np.array([0, 0, 0, 0])
-        return self.observation[:], {}
+        self.actions_taken = {1:[],0:[]} #a dictionary that can be accessed
+        self.points = {1:0,0:0}
+        self.agent_buffer = 0 #current run of points, will be saved in bank
+        self.observations = None
+        self.remaining_turns = self.max_turns
 
+        #roll the first die for the agent
+        self.die = np.random.randint(1, self.die_sides + 1) 
+        self.agent_buffer += self.die        
 
+    def opponent_step(self):
+        '''The opponent has a 50/50 policy by default'''
+        
+        done = False
+        buffer = 0
 
-    def render(self, mode="human"):
-        raise NotImplementedError
+        while not done:
+            #this is the decision 
+            #for the next roll, 
+            #there will at least be one roll
+            
+            #make the decision
+            done = bool(self.opponent_policy(self.observations)) 
+            self.die = np.random.randint(1, self.die_sides + 1)
+            
+            if self.die == PigEnv.LOSE:
+                #self.points[0] += 0
+                done = True
+            else:
+                buffer += self.die 
+        
+        self.points[0] += buffer 
+   
+    def step(self,action):
+        
+        info = None
 
+        #if the first step
+        if self.remaining_turns == self.max_turns:
+            self.die = np.random.randint(1, self.die_sides + 1)
+            if self.die == PigEnv.LOSE:
+                #self.agent_buffer = 0
+                self.opponent_step()
 
-    def close(self):
-        pass
+            observations = [self.points[0],self.points[1],self.agent_buffer]
+            reward = 0
+            terminated = 0
+            truncated = 0
+            
+            self.remaining_turns -= 1
+            return observations, reward, terminated, truncated, info 
+            
+        
+        #if in the midst of play
+        if self.remaining_turns == 0:
+                
+            observations = [self.points[0],self.points[1],self.agent_buffer]
+            reward = self.points[1] > self.points[0]
+            terminated = 0
+            truncated = 0
 
+            return observations, reward, terminated, truncated, info
 
-    def _play_opponent(self):
-        # opponent always banks
-        return 0
+        #Normal case
+        self.die = np.random.randint(1, self.die_sides + 1)
+        if self.die == PigEnv.LOSE:
+            self.agent_buffer = 0
+            #print("{} Lost! it's {}'s Turn.".format(self.turn,1-self.turn))
+            self.opponent_step()
+                        
+        observations = [self.points[0],self.points[1],self.agent_buffer]
+        reward = 0
+        terminated = 0
+        truncated = 0
+            
+        self.remaining_turns -= 1
+        return observations, reward, terminated, truncated, info   
+    
+            
+game = PigEnv(game_steps=30)
+game.step()

@@ -1,8 +1,7 @@
-import gymnasium as gym
 from env.pig import PigEnv
 
-#This is the opponent's policy, which random for now.
-def policy(observation):
+#This is the opponent's agnet_policy, which random for now.
+def agent_policy(observation):
     if observation[0] < 20:
         return 0
     else:
@@ -18,7 +17,7 @@ print("action space ", env.action_space)
 print("observation space ", env.observation_space)
 
 for _ in range(100):
-    action = policy(observation)
+    action = agent_policy(observation)
     observation, reward, terminated, truncated, info = env.step(action)
 
     print(observation, reward, terminated, truncated, info)
