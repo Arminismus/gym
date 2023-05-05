@@ -111,61 +111,14 @@ class PigEnv(Env):
             
         self.remaining_turns -= 1
         return observations, reward, terminated, truncated, info
-    
-            
-
-            
-
    
     def reset(self):
         #for the sake of simplicity, it is always the agent's turn
         #at the begining of the game
-        self.turn = PigEnv.AGENT_INDEX
+        #self.turn = PigEnv.AGENT_INDEX
    
    
-    def time_step(self):
-        #roll self.die
-        self.die = np.random.randint(1, self.die_sides + 1)
-        #print('{} got {} points! '.format(self.turn,self.die))
-        
-        #if lost, change turn, and reset points to zero.
-        if self.die == PigEnv.LOSE:
-            self.points[self.turn] = 0
-            #print("{} Lost! it's {}'s Turn.".format(self.turn,1-self.turn))
-            self.change_turn()
-        else:
-            self.points[self.turn] += self.die
-
-        
-        #make decision
-        if np.random.random() > 0.5:
-            return PigEnv.CHANGE
-        else:
-            return PigEnv.STICK    
     
-    def step(self):
-        action = self.player_action()
-        if action == PigEnv.CHANGE:
-            self.change_turn()
-
-        self.actions_taken[self.turn].append(action)
-    
-    
-    def epsiode_play(self):
-        self.start()
-        for _ in range(self.game_steps):
-            self.step()
-        #print("actions:",self.actions_taken)
-        #print('points:',self.points)
-        
-        #our agent is agent 1
-        if self.points[0] > self. points[1]:
-            return 1
-        else:
-            return 0
-    
-    def who_won(self):
-        return 
             
 game = PigEnv(game_steps=30)
 game.play()
