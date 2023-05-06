@@ -21,7 +21,7 @@ for i in range(100):
     observation, reward, terminated, truncated, info = env.step(action)
     #time.sleep(0.3)
 
-    #print("Visible Game State {}:".format(i),observation, reward, terminated, truncated, info)
+    print("Visible Game State {}:".format(i),observation, reward, terminated, truncated, info)
     print("Game Points {}:".format(i), env.points)
 
 

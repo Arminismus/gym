@@ -60,7 +60,7 @@ class PigEnv(Env):
             
             
             self.die = np.random.randint(1, self.die_sides + 1)
-            print('He rolled!:',self.die)
+            #print('He rolled!:',self.die)
             
             if self.die == PigEnv.LOSE:
                 buffer = 0
@@ -68,7 +68,7 @@ class PigEnv(Env):
             else:
                 buffer += self.die 
        
-        print('he decided to bank!',buffer)
+        #print('he decided to bank!',buffer)
         self.points[0] += buffer                
     
     def step(self,action):
@@ -77,17 +77,17 @@ class PigEnv(Env):
         if action == PigEnv.BANK:
             self.points[1] += self.agent_buffer
             self.agent_buffer = 0
-            print('I banked!',self.agent_buffer)
+            #print('I banked!',self.agent_buffer)
             self.opponent_step() #I had forgotten to give the opponent their turn when I banked!
         
         elif action == PigEnv.ROLL:
             self.die = np.random.randint(1, self.die_sides + 1)
-            print('I rolled!:',self.die)
+            #print('I rolled!:',self.die)
             
             
             if self.die == PigEnv.LOSE:
                 self.agent_buffer = 0
-                print('I lost my streak!')
+                #print('I lost my streak!')
                 
                 self.opponent_step()
 
