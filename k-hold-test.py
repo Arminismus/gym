@@ -1,4 +1,6 @@
-from env.pig import PigEnv
+
+
+from ..env.pig import PigEnv
 import numpy as np
 from tqdm import tqdm
 
