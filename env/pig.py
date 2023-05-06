@@ -22,7 +22,8 @@ class PigEnv(Env):
         self.action_space = {'bank':0, 'roll':1}
         self.die_sides = die_sides
         self.observation_space = np.ones(4)
-
+        
+        
 
         #set the stage
         self.reset()
