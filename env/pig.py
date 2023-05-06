@@ -3,8 +3,9 @@ from gymnasium import Env
 
 
 def random_opponent_policy(observations):
-    return np.random.randint(0,2)
-
+    return np.random.randint(0,4) #chagning this affects the number of times we win, indicating that the 
+                                  # step/opponent step imbalance created is responsible, because when we increase the chance of banking
+                                  #the relative length of the opponent step to our steps is changed.
 
 #implement this later
 def optimal_opponent_policy(observations):
@@ -26,7 +27,7 @@ class PigEnv(Env):
         
 
         #set the stage
-        self.reset()
+        #self.reset()
 
     def reset(self):
         self.actions_taken = {1:[],0:[]} #a dictionary that can be accessed
@@ -51,13 +52,20 @@ class PigEnv(Env):
         '''The opponent has a 50/50 policy by default'''
         done = False
         buffer = 0
-        while not done:
+        while True:
             #this is the decision 
             #for the next roll, 
-            #there will at least be one roll for the opponent
+            #there will at least be one roll for the opponent with 
+            #while not done
+            #This makes him win much more often than the agent!
+
+            #fixing this brought a lot more balance!
             
             #make the decision
             done = bool(self.opponent_policy(self.observation))
+            
+            if done:
+                break
             
             
             self.die = np.random.randint(1, self.die_sides + 1)
@@ -70,6 +78,7 @@ class PigEnv(Env):
                 buffer += self.die 
        
         #print('he decided to bank!',buffer)
+        self.remaining_turns -= 1
         self.points[0] += buffer                
     
     def step(self,action):
@@ -80,7 +89,8 @@ class PigEnv(Env):
             self.agent_buffer = 0
             #print('I banked!',self.agent_buffer)
             self.opponent_step() #I had forgotten to give the opponent their turn when I banked!
-        
+            self.remaining_turns -= 1   
+
         elif action == PigEnv.ROLL:
             self.die = np.random.randint(1, self.die_sides + 1)
             #print('I rolled!:',self.die)
@@ -89,8 +99,8 @@ class PigEnv(Env):
             if self.die == PigEnv.LOSE:
                 self.agent_buffer = 0
                 #print('I lost my streak!')
-                
                 self.opponent_step()
+                self.remaining_turns -= 1
 
             else:
                 self.agent_buffer += self.die
@@ -101,11 +111,7 @@ class PigEnv(Env):
         #if last step
         if self.remaining_turns == 0:
             self.reward = self.points[1] > self.points[0]
-            self.terminated = True
-        
-        else:
-            self.remaining_turns -= 1
-            
+            self.terminated = True        
         
         return observations, self.reward, self.terminated, self.truncated , self.info  
  
