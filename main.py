@@ -13,7 +13,7 @@ def stochastic_policy(observation):
 #if both are using an optimal policy, then, since the agent goes
 #first, it has an advantage and wins.
 def agent_policy(observation):
-    if observation[2] > 0:
+    if observation[2] > 90:
         return PigEnv.BANK
     else:
         return PigEnv.ROLL
