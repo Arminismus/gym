@@ -2,7 +2,7 @@ import numpy as np
 from gymnasium import Env
 
 
-def random_opponent_policy(observations):
+def random_opponent_policy(observation):
     return np.random.randint(0,2) #chagning this affects the number of times we win, indicating that the 
                                   # step/opponent step imbalance created is responsible, because when we increase the chance of banking
                                   #the relative length of the opponent step to our steps is changed.
@@ -10,7 +10,7 @@ def random_opponent_policy(observations):
                                   #after having changed the implementation, we see the normal 50/50 behavior as expected.
 
 #implement this later
-def optimal_opponent_policy(observations):
+def optimal_opponent_policy(observation):
     pass
 
 class PigEnv(Env):
@@ -34,6 +34,7 @@ class PigEnv(Env):
        
     def reset(self):
         self.turn = PigEnv.AGENT
+        #self.turn = np.random.randint(0,2)
         self.actions_taken = {1:[],0:[]} #a dictionary that can be accessed
         self.points = {PigEnv.AGENT:0,PigEnv.OPPONENT:0}
        
