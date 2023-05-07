@@ -1,5 +1,6 @@
 import numpy as np
 from gymnasium import Env
+from sarsa.tilecoding.tilecoding import TileCoder
 
 
 def random_opponent_policy(observation):
@@ -13,7 +14,7 @@ def random_opponent_policy(observation):
 def optimal_opponent_policy(observation):
     pass
 
-class PigEnv(Env):
+class PigEnvSarsa(Env):
     LOSE = 1
     
     BANK = 1
@@ -22,28 +23,41 @@ class PigEnv(Env):
     AGENT = 1
     OPPONENT = 0
 
-    def __init__(self, die_sides = 6,max_turns = 20,opponent_policy = random_opponent_policy):
+    def __init__(
+              self,
+                die_sides = 6,
+                max_turns = 20,
+                opponent_policy = random_opponent_policy,
+                tiles = {"tiles_per_dim":[10,10],
+                         "lims":[(0.0,10.0),(0.0,10.0)],
+                         "num_tilings":8},
+                         ):
+        
+        
+        self.T = TileCoder(tiles["tiles_per_dim"],
+                                           tiles["lims"],
+                                           tiles["num_tilings"]) 
         self.opponent_policy = opponent_policy
         self.max_turns = max_turns
         self.action_space = {'bank':0, 'roll':1}
         self.die_sides = die_sides
-        self.observation_space = np.ones(4)
         
         
 
        
     def reset(self):
-        self.turn = PigEnv.AGENT
+        self.turn = PigEnvSarsa.AGENT
         #self.turn = np.random.randint(0,2)
         self.actions_taken = {1:[],0:[]} #a dictionary that can be accessed
-        self.points = {PigEnv.AGENT:0,PigEnv.OPPONENT:0}
+        self.points = {PigEnvSarsa.AGENT:0,PigEnvSarsa.OPPONENT:0}
        
 
         self.buffers = [0,0] 
         self.remaining_turns = self.max_turns  
 
-        self.observation = [self.points[PigEnv.AGENT],self.points[PigEnv.OPPONENT],self.buffers[PigEnv.AGENT]]
-        
+        self.observation = [self.points[PigEnvSarsa.AGENT],self.points[PigEnvSarsa.OPPONENT],self.buffers[PigEnvSarsa.AGENT]]
+        self.observation_space = self.T(self.observation)
+
         self.reward = 0
         self.terminated = False
         self.truncated = False
@@ -52,19 +66,19 @@ class PigEnv(Env):
         return self.observation, self.info  
     
     def get_player_actions(self,current_player,action):
-        if action == PigEnv.BANK:
+        if action == PigEnvSarsa.BANK:
                 self.points[current_player] += self.buffers[current_player]
                 self.buffers[current_player] = 0
                
                 self.turn = 1 - current_player 
                 self.remaining_turns -= 1   
 
-        elif action == PigEnv.ROLL:
+        elif action == PigEnvSarsa.ROLL:
                 self.die = np.random.randint(1, self.die_sides + 1)
                 
 
 
-                if self.die == PigEnv.LOSE:
+                if self.die == PigEnvSarsa.LOSE:
                     self.buffers[current_player] = 0
                     
                     self.turn = 1 - current_player
@@ -75,21 +89,21 @@ class PigEnv(Env):
     
     
     def step(self,action):
-        if self.turn == PigEnv.AGENT:
-           self.get_player_actions(PigEnv.AGENT,action) 
+        if self.turn == PigEnvSarsa.AGENT:
+           self.get_player_actions(PigEnvSarsa.AGENT,action) 
             
-        elif self.turn == PigEnv.OPPONENT:
+        elif self.turn == PigEnvSarsa.OPPONENT:
              action = self.opponent_policy(self.observation)
-             self.get_player_actions(PigEnv.OPPONENT,action)
+             self.get_player_actions(PigEnvSarsa.OPPONENT,action)
 
 
 
         
-        observations = [self.points[0],self.points[1],self.buffers[PigEnv.AGENT]]
+        observations = [self.points[0],self.points[1],self.buffers[PigEnvSarsa.AGENT]]
         
         #if last step
         if self.remaining_turns == 0:
-            self.reward = self.points[PigEnv.AGENT] > self.points[PigEnv.OPPONENT]
+            self.reward = self.points[PigEnvSarsa.AGENT] > self.points[PigEnvSarsa.OPPONENT]
             self.terminated = True        
         
         return observations, self.reward, self.terminated, self.truncated , self.info  
