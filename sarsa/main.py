@@ -19,7 +19,9 @@ def agent_policy(observation):
     else:
         return PigEnvSarsa.ROLL
          
-env = PigEnvSarsa(max_turns=30,opponent_policy=stochastic_policy)
+env = PigEnvSarsa(max_turns=30,opponent_policy=stochastic_policy) #setting this to agent policy will not work
+                                                             # as observation[2] is the agent's buffer not the opponent's.
+
 observation, info = env.reset()
 
 
@@ -31,7 +33,7 @@ print("observation space ", env.observation_space)
 
 rewards = []
 
-for i in range(1000):
+for i in range(3):
     
     
     terminated = False
@@ -40,7 +42,9 @@ for i in range(1000):
         #action = stochastic_policy(observation)
         action = agent_policy(observation)
         observation, reward, terminated, truncated, info = env.step(action)
-        #time.sleep(0.5)
+        time.sleep(0.1)
+        print(env.observation_space)
+        print(env.observation)
 
         #print("Visible Game State:",observation, reward, terminated, truncated, info)
         #print("Game Points:", env.points)

@@ -46,8 +46,8 @@ class PigEnvSarsa(Env):
 
        
     def reset(self):
-        self.turn = PigEnvSarsa.AGENT
-        #self.turn = np.random.randint(0,2)
+        #self.turn = PigEnvSarsa.AGENT
+        self.turn = np.random.randint(0,2)
         self.actions_taken = {1:[],0:[]} #a dictionary that can be accessed
         self.points = {PigEnvSarsa.AGENT:0,PigEnvSarsa.OPPONENT:0}
        
@@ -99,14 +99,15 @@ class PigEnvSarsa(Env):
 
 
         
-        observations = [self.points[0],self.points[1],self.buffers[PigEnvSarsa.AGENT]]
-        
+        self.observation = [self.points[0],self.points[1],self.buffers[PigEnvSarsa.AGENT]]
+        self.observation_space = self.T[self.observation]
+
         #if last step
         if self.remaining_turns == 0:
             self.reward = self.points[PigEnvSarsa.AGENT] > self.points[PigEnvSarsa.OPPONENT]
             self.terminated = True        
         
-        return observations, self.reward, self.terminated, self.truncated , self.info  
+        return self.observation, self.reward, self.terminated, self.truncated , self.info  
  
     
 
