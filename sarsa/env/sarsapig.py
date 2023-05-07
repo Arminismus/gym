@@ -28,8 +28,8 @@ class PigEnvSarsa(Env):
                 die_sides = 6,
                 max_turns = 20,
                 opponent_policy = random_opponent_policy,
-                tiles = {"tiles_per_dim":[10,10],
-                         "lims":[(0.0,10.0),(0.0,10.0)],
+                tiles = {"tiles_per_dim":[10,10,10],
+                         "lims":[(0.0,10.0),(0.0,10.0),(0.0,10.0)],
                          "num_tilings":8},
                          ):
         
@@ -56,7 +56,7 @@ class PigEnvSarsa(Env):
         self.remaining_turns = self.max_turns  
 
         self.observation = [self.points[PigEnvSarsa.AGENT],self.points[PigEnvSarsa.OPPONENT],self.buffers[PigEnvSarsa.AGENT]]
-        self.observation_space = self.T(self.observation)
+        self.observation_space = self.T[self.observation]
 
         self.reward = 0
         self.terminated = False
