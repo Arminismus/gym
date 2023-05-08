@@ -107,7 +107,11 @@ class PigEnvSarsa(Env):
         #if last step
         if self.remaining_turns == 0:
             self.reward = self.points[PigEnvSarsa.AGENT] > self.points[PigEnvSarsa.OPPONENT]
-            self.terminated = True        
+            self.terminated = True   
+
+        #if either player reaches 100 points, the game is over
+        if self.points[PigEnvSarsa.AGENT] > 100 or self.points[PigEnvSarsa.OPPONENT] > 100:
+             self.terminated = True     
         
         return self.observation, self.reward, self.terminated, self.truncated , self.info  
  
