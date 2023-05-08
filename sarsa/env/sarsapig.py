@@ -23,17 +23,21 @@ class PigEnvSarsa(Env):
     AGENT = 1
     OPPONENT = 0
 
+    NUM_ACTIONS = 2
+    NUM_STATES = 101*101*101
     def __init__(
               self,
                 die_sides = 6,
                 max_turns = 20,
                 opponent_policy = random_opponent_policy,
                 tiles = {"tiles_per_dim":[10,10,10],
-                         "lims":[(0.0,10.0),(0.0,10.0),(0.0,10.0)],
-                         "num_tilings":8},
+                         "lims":[(0.0,100.0),(0.0,100.0),(0.0,100.0)],
+                         "num_tilings":16},
+
+                learning_rate = 0.01,
+                epsilon = 0.05,
                          ):
-        
-        
+
         self.T = TileCoder(tiles["tiles_per_dim"],
                                            tiles["lims"],
                                            tiles["num_tilings"]) 
@@ -42,8 +46,9 @@ class PigEnvSarsa(Env):
         self.action_space = {'bank':0, 'roll':1}
         self.die_sides = die_sides
         
+        self.learning_rate = learning_rate
+        self.epsilon = epsilon
         
-
        
     def reset(self):
         #self.turn = PigEnvSarsa.AGENT
@@ -57,6 +62,8 @@ class PigEnvSarsa(Env):
 
         self.observation = [self.points[PigEnvSarsa.AGENT],self.points[PigEnvSarsa.OPPONENT],self.buffers[PigEnvSarsa.AGENT]]
         self.observation_space = self.T[self.observation]
+
+        self.q_values = {}
 
         self.reward = 0
         self.terminated = False
@@ -76,8 +83,6 @@ class PigEnvSarsa(Env):
         elif action == PigEnvSarsa.ROLL:
                 self.die = np.random.randint(1, self.die_sides + 1)
                 
-
-
                 if self.die == PigEnvSarsa.LOSE:
                     self.buffers[current_player] = 0
                     
@@ -95,9 +100,6 @@ class PigEnvSarsa(Env):
         elif self.turn == PigEnvSarsa.OPPONENT:
              action = self.opponent_policy(self.observation)
              self.get_player_actions(PigEnvSarsa.OPPONENT,action)
-
-
-
         
         self.observation = [self.points[0],self.points[1],self.buffers[PigEnvSarsa.AGENT]]
         self.observation_space = self.T[self.observation]

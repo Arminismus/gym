@@ -1,6 +1,6 @@
 from env.sarsapig import PigEnvSarsa
 import numpy as np
-
+#from tqdm import tqdm
 
 import time
 
@@ -32,17 +32,28 @@ print("action space ", env.action_space)
 print("observation space ", env.observation_space)
 
 rewards = []
+#epsilon = 0.05
 
-for i in range(3):
-    
+#N of possible observations 
+n_obs = 101*101*101
+#q_table = np.zeros([env.observation_space.n, env.action_space.n])
+
+for i in range (3):    
     
     terminated = False
     truncated = False
     while not terminated and not truncated:
-        #action = stochastic_policy(observation)
-        action = agent_policy(observation)
-        observation, reward, terminated, truncated, info = env.step(action)
-        time.sleep(0.1)
+        
+        #epsilon greedy
+        if np.random.random() > env.epsilon: 
+            action = agent_policy(observation)
+        else:
+            action = np.random.randint(0,2)
+        next_observation, reward, terminated, truncated, info = env.step(action)
+        
+        time.sleep(0.4)
+        
+        
         print(env.observation_space)
         print(env.observation)
 
