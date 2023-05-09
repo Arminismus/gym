@@ -1,6 +1,6 @@
 import numpy as np
 from gymnasium import Env
-from q_learning.tilecoding.tilecoding import TileCoder
+#from q_learning. import TileCoder
 
 
 def random_opponent_policy(observation):
@@ -30,18 +30,12 @@ class PigEnvSarsa(Env):
                 die_sides = 6,
                 max_turns = 20,
                 opponent_policy = random_opponent_policy,
-                tiles = {"tiles_per_dim":[10,10,10],
-                         "lims":[(0.0,100.0),(0.0,100.0),(0.0,100.0)],
-                         "num_tilings":16},
 
                 learning_rate = 0.01,
                 epsilon = 0.05,
                 discount_factor = 0.9
                          ):
 
-        self.T = TileCoder(tiles["tiles_per_dim"],
-                                           tiles["lims"],
-                                           tiles["num_tilings"]) 
         self.opponent_policy = opponent_policy
         self.max_turns = max_turns
         self.action_space = {'bank':0, 'roll':1}
@@ -62,9 +56,8 @@ class PigEnvSarsa(Env):
         self.buffers = [0,0] 
         self.remaining_turns = self.max_turns  
 
-        self.observation = [self.points[PigEnvSarsa.AGENT],self.points[PigEnvSarsa.OPPONENT],self.buffers[PigEnvSarsa.AGENT]]
-        #self.observation_space = self.T[self.observation]
-        self.observation_space = tuple(self.T[self.observation])
+        self.observation = (self.points[PigEnvSarsa.AGENT],self.points[PigEnvSarsa.OPPONENT],self.buffers[PigEnvSarsa.AGENT])
+       
 
 
         self.reward = 0
@@ -72,7 +65,7 @@ class PigEnvSarsa(Env):
         self.truncated = False
         self.info = None
 
-        return self.observation_space, self.info  
+        return self.observation, self.info  
     
     def get_player_actions(self,current_player,action):
         if action == PigEnvSarsa.BANK:
@@ -103,8 +96,8 @@ class PigEnvSarsa(Env):
              action = self.opponent_policy(self.observation)
              self.get_player_actions(PigEnvSarsa.OPPONENT,action)
         
-        self.observation = [self.points[0],self.points[1],self.buffers[PigEnvSarsa.AGENT]]
-        self.observation_space = tuple(self.T[self.observation])
+        self.observation = (self.points[0],self.points[1],self.buffers[PigEnvSarsa.AGENT])
+        
 
         #if last step
         if self.remaining_turns == 0:
@@ -115,7 +108,7 @@ class PigEnvSarsa(Env):
         if self.points[PigEnvSarsa.AGENT] > 100 or self.points[PigEnvSarsa.OPPONENT] > 100:
              self.terminated = True     
         
-        return self.observation_space, self.reward, self.terminated, self.truncated , self.info  
+        return self.observation, self.reward, self.terminated, self.truncated , self.info  
  
     
 

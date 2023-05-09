@@ -24,7 +24,7 @@ def agent_policy(observation):
     else:
         return PigEnvSarsa.ROLL
          
-env = PigEnvSarsa(max_turns=30,opponent_policy=stochastic_policy,epsilon = 0.1) #setting this to agent policy will not work
+env = PigEnvSarsa(max_turns=30,opponent_policy=stochastic_policy,epsilon = 0.1,learning_rate=0.1) #setting this to agent policy will not work
                                                              # as observation[2] is the agent's buffer not the opponent's.
 
 observation, info = env.reset()
@@ -33,8 +33,8 @@ observation, info = env.reset()
 
 print(observation)
 
-print("action space ", env.action_space)
-print("observation space ", env.observation_space)
+#print("action space ", env.action_space)
+#print("observation space ", env.observation_space)
 
 rewards = []
 #epsilon = 0.05
@@ -78,10 +78,9 @@ for i in tqdm(range(10000)):
     
     #print("A reset occured!")
     
-print(len(q_table)) #after 100 000 episodes, 8646 Tile coded states were reached, and only a handful(less than 20) states had non-zero value
-for i in q_table.values():
-    if i != 0:
-        print(i)        
+print(len(q_table))
+print(np.max(list(q_table.values())))
+       
 #print("Policy Success Rate:",sum(rewards)/len(rewards)*100)
 
 env.close()
