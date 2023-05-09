@@ -1,6 +1,6 @@
 import numpy as np
 from gymnasium import Env
-from sarsa.tilecoding.tilecoding import TileCoder
+from q_learning.tilecoding.tilecoding import TileCoder
 
 
 def random_opponent_policy(observation):

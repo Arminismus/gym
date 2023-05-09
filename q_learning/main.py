@@ -78,7 +78,7 @@ for i in tqdm(range(100000)):
     
     #print("A reset occured!")
     
-print(len(q_table))
+print(len(q_table)) #after 100 000 episodes, 8646 Tile coded states were reached, and only a handful(less than 20) states had non-zero value
 for i in q_table.values():
     if i != 0:
         print(i)        
