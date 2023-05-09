@@ -1,4 +1,4 @@
-from env.sarsapig import PigEnvSarsa
+from env.q_pig import PigEnvSarsa
 import numpy as np
 from collections import defaultdict
 from tqdm import tqdm
@@ -24,7 +24,7 @@ def agent_policy(observation):
     else:
         return PigEnvSarsa.ROLL
          
-env = PigEnvSarsa(max_turns=30,opponent_policy=stochastic_policy) #setting this to agent policy will not work
+env = PigEnvSarsa(max_turns=30,opponent_policy=stochastic_policy,epsilon = 0.1) #setting this to agent policy will not work
                                                              # as observation[2] is the agent's buffer not the opponent's.
 
 observation, info = env.reset()
@@ -45,7 +45,7 @@ rewards = []
 
 #q_table = np.zeros([env.observation_space.n, env.action_space.n])
 
-for i in tqdm(range(100000)):    
+for i in tqdm(range(10000)):    
     state,_ = env.reset() #env reset returns observation, info
 
     terminated = False

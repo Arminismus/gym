@@ -1,3 +1,3 @@
 [submodule "sarsa/sarsa/tilecoding"]
-	path = sarsa/sarsa/tilecoding
+	path = tilecoding/q_learning/tilecoding
 	url = https://github.com/Arminismus/tilecoding
