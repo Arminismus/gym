@@ -1,14 +1,12 @@
 from env.sarsapig import PigEnvSarsa
 import numpy as np
 from collections import defaultdict
+from tqdm import tqdm
 #from tqdm import tqdm
 
 #This is Q-Learning bitch!
-q_values = defaultdict(lambda:0) #a default dictionary for all states, this means we only keep the values for the states we visit. 
-                                              #This means we can easily use their values in recurrent formulas without worrying about errors.
-        
-
-
+q_table = defaultdict(lambda:0) #a default dictionary for all states, this means we only keep the values for the states we visit. 
+                                              #This means we can easily use their values in recurrent formulas without worrying about errors.   
 import time
 
 #This stochastic policy ties with it's own counter part.
@@ -47,8 +45,9 @@ rewards = []
 
 #q_table = np.zeros([env.observation_space.n, env.action_space.n])
 
-for i in range (3):    
-    
+for i in tqdm(range(100000)):    
+    state,_ = env.reset() #env reset returns observation, info
+
     terminated = False
     truncated = False
     while not terminated and not truncated:
@@ -60,20 +59,29 @@ for i in range (3):
             action = np.random.randint(0,2)
         next_observation, reward, terminated, truncated, info = env.step(action)
 
-       
-        time.sleep(0.4)
+        old_value = q_table[state]
+        next_max = np.max(q_table[next_observation])
+
+        new_value = (1 - env.alpha) * old_value + env.alpha * (reward + env.gamma * next_max)
+        #print(new_value)
+        q_table[state, action] = new_value
         
+        #time.sleep(0.05)
         
-        print(env.observation_space)
-        print(env.observation)
+        state = next_observation
+        #print(env.observation_space)
+        #print(env.observation)
 
         #print("Visible Game State:",observation, reward, terminated, truncated, info)
         #print("Game Points:", env.points)
     rewards.append(reward)
-    env.reset()
+    
     #print("A reset occured!")
     
-        
-print("Policy Success Rate:",sum(rewards)/len(rewards)*100)
+print(len(q_table))
+for i in q_table.values():
+    if i != 0:
+        print(i)        
+#print("Policy Success Rate:",sum(rewards)/len(rewards)*100)
 
 env.close()

@@ -36,6 +36,7 @@ class PigEnvSarsa(Env):
 
                 learning_rate = 0.01,
                 epsilon = 0.05,
+                discount_factor = 0.9
                          ):
 
         self.T = TileCoder(tiles["tiles_per_dim"],
@@ -46,8 +47,9 @@ class PigEnvSarsa(Env):
         self.action_space = {'bank':0, 'roll':1}
         self.die_sides = die_sides
         
-        self.learning_rate = learning_rate
+        self.alpha = learning_rate
         self.epsilon = epsilon
+        self.gamma = discount_factor
         
        
     def reset(self):
@@ -61,7 +63,8 @@ class PigEnvSarsa(Env):
         self.remaining_turns = self.max_turns  
 
         self.observation = [self.points[PigEnvSarsa.AGENT],self.points[PigEnvSarsa.OPPONENT],self.buffers[PigEnvSarsa.AGENT]]
-        self.observation_space = self.T[self.observation]
+        #self.observation_space = self.T[self.observation]
+        self.observation_space = tuple(self.T[self.observation])
 
 
         self.reward = 0
@@ -69,7 +72,7 @@ class PigEnvSarsa(Env):
         self.truncated = False
         self.info = None
 
-        return self.observation, self.info  
+        return self.observation_space, self.info  
     
     def get_player_actions(self,current_player,action):
         if action == PigEnvSarsa.BANK:
@@ -101,7 +104,7 @@ class PigEnvSarsa(Env):
              self.get_player_actions(PigEnvSarsa.OPPONENT,action)
         
         self.observation = [self.points[0],self.points[1],self.buffers[PigEnvSarsa.AGENT]]
-        self.observation_space = self.T[self.observation]
+        self.observation_space = tuple(self.T[self.observation])
 
         #if last step
         if self.remaining_turns == 0:
@@ -112,7 +115,7 @@ class PigEnvSarsa(Env):
         if self.points[PigEnvSarsa.AGENT] > 100 or self.points[PigEnvSarsa.OPPONENT] > 100:
              self.terminated = True     
         
-        return self.observation, self.reward, self.terminated, self.truncated , self.info  
+        return self.observation_space, self.reward, self.terminated, self.truncated , self.info  
  
     
 
