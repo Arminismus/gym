@@ -63,7 +63,6 @@ class PigEnvSarsa(Env):
         self.observation = [self.points[PigEnvSarsa.AGENT],self.points[PigEnvSarsa.OPPONENT],self.buffers[PigEnvSarsa.AGENT]]
         self.observation_space = self.T[self.observation]
 
-        self.q_values = {}
 
         self.reward = 0
         self.terminated = False

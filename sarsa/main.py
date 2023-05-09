@@ -1,6 +1,13 @@
 from env.sarsapig import PigEnvSarsa
 import numpy as np
+from collections import defaultdict
 #from tqdm import tqdm
+
+#This is Q-Learning bitch!
+q_values = defaultdict(lambda:0) #a default dictionary for all states, this means we only keep the values for the states we visit. 
+                                              #This means we can easily use their values in recurrent formulas without worrying about errors.
+        
+
 
 import time
 
@@ -35,7 +42,9 @@ rewards = []
 #epsilon = 0.05
 
 #N of possible observations 
-n_obs = 101*101*101
+#does it make more sense to use linear function approximation? let's try
+
+
 #q_table = np.zeros([env.observation_space.n, env.action_space.n])
 
 for i in range (3):    
@@ -50,7 +59,8 @@ for i in range (3):
         else:
             action = np.random.randint(0,2)
         next_observation, reward, terminated, truncated, info = env.step(action)
-        
+
+       
         time.sleep(0.4)
         
         
