@@ -40,7 +40,7 @@ rewards = []
 #epsilon = 0.05
 #q_table = np.zeros([env.observation_space.n, env.action_space.n])
 
-for i in tqdm(range(1000000)):    
+for i in tqdm(range(10000)):    
     state,_ = env.reset() #env reset returns observation, info
 
     terminated = False
@@ -54,8 +54,9 @@ for i in tqdm(range(1000000)):
             action = np.random.randint(0,2)
         next_observation, reward, terminated, truncated, info = env.step(action)
 
-        old_value = q_table[state]
-        next_max = np.max(q_table[next_observation, PigEnv.ROLL],q_table[next_observation,PigEnv.BANK])
+        old_value = q_table[state, action]
+        #Take the maximum over all possible actions in the next state.
+        next_max = np.max([q_table[next_observation, PigEnv.ROLL],q_table[next_observation,PigEnv.BANK]])
 
         new_value = (1 - env.alpha) * old_value + env.alpha * (reward + env.gamma * next_max)
         #print(new_value)
