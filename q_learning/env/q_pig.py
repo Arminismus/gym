@@ -29,6 +29,7 @@ class PigEnv(Env):
               self,
                 die_sides = 6,
                 max_turns = 20,
+                max_points = 100,
                 opponent_policy = random_opponent_policy,
 
                 learning_rate = 0.01,
@@ -40,6 +41,7 @@ class PigEnv(Env):
         self.max_turns = max_turns
         self.action_space = {'bank':0, 'roll':1}
         self.die_sides = die_sides
+        self.max_points = max_points
         
         self.alpha = learning_rate
         self.epsilon = epsilon
@@ -105,7 +107,7 @@ class PigEnv(Env):
             self.terminated = True   
 
         #if either player reaches 100 points, the game is over
-        if self.points[PigEnv.AGENT] > 100 or self.points[PigEnv.OPPONENT] > 100:
+        if self.points[PigEnv.AGENT] > self.max_points or self.points[PigEnv.OPPONENT] > self.max_points:
              self.terminated = True     
         
         return self.observation, self.reward, self.terminated, self.truncated , self.info  
