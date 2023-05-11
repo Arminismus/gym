@@ -108,7 +108,8 @@ class PigEnv(Env):
 
         #if either player reaches 100 points, the game is over
         if self.points[PigEnv.AGENT] > self.max_points or self.points[PigEnv.OPPONENT] > self.max_points:
-             self.terminated = True     
+             self.terminated = True
+             self.reward = self.points[PigEnv.AGENT] > self.points[PigEnv.OPPONENT]     
         
         return self.observation, self.reward, self.terminated, self.truncated , self.info  
  
