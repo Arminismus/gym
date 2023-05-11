@@ -2,7 +2,7 @@ from env.q_pig import PigEnv
 import numpy as np
 from collections import defaultdict
 from tqdm import tqdm
-#from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 #This is Q-Learning bitch!
 q_table = defaultdict(lambda:0) #a default dictionary for all states, this means we only keep the values for the states we visit. 
@@ -24,12 +24,14 @@ def agent_policy(observation):
     else:
         return PigEnv.ROLL
          
-env = PigEnv(max_turns=30,opponent_policy=stochastic_policy,epsilon = 0.2,learning_rate=0.15) #setting this to agent policy will not work
+env = PigEnv(max_turns=30,opponent_policy=agent_policy,epsilon = 0.2,learning_rate=0.15) #setting this to agent policy will not work
                                                              # as observation[2] is the agent's buffer not the opponent's.
 
 observation, info = env.reset()
 
 
+def q_policy(observation):
+    return np.argmax(q_table[observation])
 
 print(observation)
 
@@ -49,6 +51,7 @@ for i in tqdm(range(10000)):
         
         #epsilon greedy
         if np.random.random() > env.epsilon: 
+            #action = q_policy(observation)
             action = agent_policy(observation)
         else:
             action = np.random.randint(0,2)
@@ -62,7 +65,7 @@ for i in tqdm(range(10000)):
         #print(new_value)
         
         q_table[state, action] = new_value
-        state = next_observation
+        observation = next_observation
         #print(env.observation_space)
         #print(env.observation)
 
@@ -71,10 +74,14 @@ for i in tqdm(range(10000)):
     rewards.append(reward)
     
     #print("A reset occured!")
-    
-print(len(q_table))
-print(np.max(list(q_table.values()))) #the value of the q_tables is stuck at the learning rate, this probably means each state is rarely vistied again...
+
+print(sum(rewards)/len(rewards))
+
+#print(len(q_table))
+#print(np.max(list(q_table.values()))) #the value of the q_tables is stuck at the learning rate, this probably means each state is rarely vistied again...
        
+#plt.plot(rewards)
+#plt.savefig('sos.png')
 #print("Policy Success Rate:",sum(rewards)/len(rewards)*100)
 
 env.close()
