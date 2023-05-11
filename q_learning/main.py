@@ -1,4 +1,4 @@
-from env.q_pig import PigEnvSarsa
+from env.q_pig import PigEnv
 import numpy as np
 from collections import defaultdict
 from tqdm import tqdm
@@ -20,11 +20,11 @@ def stochastic_policy(observation):
 #first, it has an advantage and wins.
 def agent_policy(observation):
     if observation[2] > 23:
-        return PigEnvSarsa.BANK
+        return PigEnv.BANK
     else:
-        return PigEnvSarsa.ROLL
+        return PigEnv.ROLL
          
-env = PigEnvSarsa(max_turns=30,opponent_policy=stochastic_policy,epsilon = 0.1,learning_rate=0.1) #setting this to agent policy will not work
+env = PigEnv(max_turns=30,opponent_policy=stochastic_policy,epsilon = 0.2,learning_rate=0.15) #setting this to agent policy will not work
                                                              # as observation[2] is the agent's buffer not the opponent's.
 
 observation, info = env.reset()
@@ -38,14 +38,9 @@ print(observation)
 
 rewards = []
 #epsilon = 0.05
-
-#N of possible observations 
-#does it make more sense to use linear function approximation? let's try
-
-
 #q_table = np.zeros([env.observation_space.n, env.action_space.n])
 
-for i in tqdm(range(10000)):    
+for i in tqdm(range(1000000)):    
     state,_ = env.reset() #env reset returns observation, info
 
     terminated = False
@@ -60,14 +55,12 @@ for i in tqdm(range(10000)):
         next_observation, reward, terminated, truncated, info = env.step(action)
 
         old_value = q_table[state]
-        next_max = np.max(q_table[next_observation])
+        next_max = np.max(q_table[next_observation, PigEnv.ROLL],q_table[next_observation,PigEnv.BANK])
 
         new_value = (1 - env.alpha) * old_value + env.alpha * (reward + env.gamma * next_max)
         #print(new_value)
+        
         q_table[state, action] = new_value
-        
-        #time.sleep(0.05)
-        
         state = next_observation
         #print(env.observation_space)
         #print(env.observation)
@@ -79,7 +72,7 @@ for i in tqdm(range(10000)):
     #print("A reset occured!")
     
 print(len(q_table))
-print(np.max(list(q_table.values())))
+print(np.max(list(q_table.values()))) #the value of the q_tables is stuck at the learning rate, this probably means each state is rarely vistied again...
        
 #print("Policy Success Rate:",sum(rewards)/len(rewards)*100)
 

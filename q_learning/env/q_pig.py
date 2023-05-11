@@ -14,7 +14,7 @@ def random_opponent_policy(observation):
 def optimal_opponent_policy(observation):
     pass
 
-class PigEnvSarsa(Env):
+class PigEnv(Env):
     LOSE = 1
     
     BANK = 1
@@ -47,16 +47,16 @@ class PigEnvSarsa(Env):
         
        
     def reset(self):
-        #self.turn = PigEnvSarsa.AGENT
+        #self.turn = PigEnv.AGENT
         self.turn = np.random.randint(0,2)
         self.actions_taken = {1:[],0:[]} #a dictionary that can be accessed
-        self.points = {PigEnvSarsa.AGENT:0,PigEnvSarsa.OPPONENT:0}
+        self.points = {PigEnv.AGENT:0,PigEnv.OPPONENT:0}
        
 
         self.buffers = [0,0] 
         self.remaining_turns = self.max_turns  
 
-        self.observation = (self.points[PigEnvSarsa.AGENT],self.points[PigEnvSarsa.OPPONENT],self.buffers[PigEnvSarsa.AGENT])
+        self.observation = (self.points[PigEnv.AGENT],self.points[PigEnv.OPPONENT],self.buffers[PigEnv.AGENT])
        
 
 
@@ -68,17 +68,17 @@ class PigEnvSarsa(Env):
         return self.observation, self.info  
     
     def get_player_actions(self,current_player,action):
-        if action == PigEnvSarsa.BANK:
+        if action == PigEnv.BANK:
                 self.points[current_player] += self.buffers[current_player]
                 self.buffers[current_player] = 0
                
                 self.turn = 1 - current_player 
                 self.remaining_turns -= 1   
 
-        elif action == PigEnvSarsa.ROLL:
+        elif action == PigEnv.ROLL:
                 self.die = np.random.randint(1, self.die_sides + 1)
                 
-                if self.die == PigEnvSarsa.LOSE:
+                if self.die == PigEnv.LOSE:
                     self.buffers[current_player] = 0
                     
                     self.turn = 1 - current_player
@@ -89,23 +89,23 @@ class PigEnvSarsa(Env):
     
     
     def step(self,action):
-        if self.turn == PigEnvSarsa.AGENT:
-           self.get_player_actions(PigEnvSarsa.AGENT,action) 
+        if self.turn == PigEnv.AGENT:
+           self.get_player_actions(PigEnv.AGENT,action) 
             
-        elif self.turn == PigEnvSarsa.OPPONENT:
+        elif self.turn == PigEnv.OPPONENT:
              action = self.opponent_policy(self.observation)
-             self.get_player_actions(PigEnvSarsa.OPPONENT,action)
+             self.get_player_actions(PigEnv.OPPONENT,action)
         
-        self.observation = (self.points[0],self.points[1],self.buffers[PigEnvSarsa.AGENT])
+        self.observation = (self.points[0],self.points[1],self.buffers[PigEnv.AGENT])
         
 
         #if last step
         if self.remaining_turns == 0:
-            self.reward = self.points[PigEnvSarsa.AGENT] > self.points[PigEnvSarsa.OPPONENT]
+            self.reward = self.points[PigEnv.AGENT] > self.points[PigEnv.OPPONENT]
             self.terminated = True   
 
         #if either player reaches 100 points, the game is over
-        if self.points[PigEnvSarsa.AGENT] > 100 or self.points[PigEnvSarsa.OPPONENT] > 100:
+        if self.points[PigEnv.AGENT] > 100 or self.points[PigEnv.OPPONENT] > 100:
              self.terminated = True     
         
         return self.observation, self.reward, self.terminated, self.truncated , self.info  
