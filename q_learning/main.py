@@ -24,7 +24,7 @@ def agent_policy(observation):
     else:
         return PigEnv.ROLL
          
-env = PigEnv(max_turns=300,opponent_policy=stochastic_policy,epsilon = 0.2,learning_rate=0.15) #setting this to agent policy will not work
+env = PigEnv(max_turns=300,opponent_policy=stochastic_policy,epsilon = 0.4,learning_rate=0.03) #setting this to agent policy will not work
                                                              # as observation[2] is the agent's buffer not the opponent's.
 
 observation, info = env.reset()
@@ -42,7 +42,7 @@ rewards = []
 #epsilon = 0.05
 #q_table = np.zeros([env.observation_space.n, env.action_space.n])
 
-for i in tqdm(range(10000)):    
+for i in tqdm(range(20000)):    
     state,_ = env.reset() #env reset returns observation, info
 
     terminated = False
@@ -51,9 +51,9 @@ for i in tqdm(range(10000)):
         
         #epsilon greedy
         if np.random.random() > env.epsilon: 
-            #action = q_policy(observation)
+            action = q_policy(observation)
             #action = stochastic_policy(observation)
-            action = agent_policy(observation)
+            #action = agent_policy(observation)
         else:
             action = np.random.randint(0,2)
         next_observation, reward, terminated, truncated, info = env.step(action)
