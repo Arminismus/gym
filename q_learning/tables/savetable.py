@@ -7,4 +7,4 @@ def save(table,name):
 
 def load(name):
     with open(name,'rb') as fp:
-        return dill.load(name)
+        return dill.load(fp)
