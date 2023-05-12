@@ -3,10 +3,14 @@ import numpy as np
 from collections import defaultdict
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+from tables.savetable import save,load
+
+from policies.epsilon_greedy import epsilon_greedy
 
 #This is Q-Learning bitch!
-q_table = defaultdict(lambda:0) #a default dictionary for all states, this means we only keep the values for the states we visit. 
+#q_table = defaultdict(lambda:0) #a default dictionary for all states, this means we only keep the values for the states we visit. 
                                               #This means we can easily use their values in recurrent formulas without worrying about errors.   
+q_table = load('q_table')
 import time
 
 #This stochastic policy ties with it's own counter part.
@@ -24,7 +28,7 @@ def agent_policy(observation):
     else:
         return PigEnv.ROLL
          
-env = PigEnv(max_turns=300,opponent_policy=stochastic_policy,epsilon = 0.4,learning_rate=0.03) #setting this to agent policy will not work
+env = PigEnv(max_turns=300,opponent_policy=stochastic_policy,epsilon = 0.5,learning_rate=0.03) #setting this to agent policy will not work
                                                              # as observation[2] is the agent's buffer not the opponent's.
 
 observation, info = env.reset()
@@ -39,10 +43,11 @@ print(observation)
 #print("observation space ", env.observation_space)
 
 rewards = []
+cumulative_reward = 0
 #epsilon = 0.05
 #q_table = np.zeros([env.observation_space.n, env.action_space.n])
 
-for i in tqdm(range(20000)):    
+for i in tqdm(range(10_000)):    
     state,_ = env.reset() #env reset returns observation, info
 
     terminated = False
@@ -72,17 +77,18 @@ for i in tqdm(range(20000)):
 
         #print("Visible Game State:",observation, reward, terminated, truncated, info)
         #print("Game Points:", env.points)
+    #cumulative_reward += reward
     rewards.append(reward)
     
     #print("A reset occured!")
 
+save(q_table,'q_table')
 print(sum(rewards)/len(rewards))
 
 #print(len(q_table))
 #print(np.max(list(q_table.values()))) #the value of the q_tables is stuck at the learning rate, this probably means each state is rarely vistied again...
        
 #plt.plot(rewards)
-#plt.savefig('sos.png')
 #print("Policy Success Rate:",sum(rewards)/len(rewards)*100)
 
 env.close()
