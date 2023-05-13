@@ -1,6 +1,5 @@
 import numpy as np
 from env.q_pig import PigEnv
-from main import Main
 
 def stochastic_policy(observation):
     return np.random.randint(0,2)

@@ -13,7 +13,7 @@ config = {
     "iterations": 10000,
     "max_turns": 300,
 
-    "epsilon": 0.1,
+    "epsilon": 0.4,
     "learning_rate":0.03,
     "random_policy": stochastic_policy,  
 }
