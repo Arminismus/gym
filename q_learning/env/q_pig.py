@@ -51,7 +51,6 @@ class PigEnv(Env):
     def reset(self):
         #self.turn = PigEnv.AGENT
         self.turn = np.random.randint(0,2)
-        self.actions_taken = {1:[],0:[]} #a dictionary that can be accessed
         self.points = {PigEnv.AGENT:0,PigEnv.OPPONENT:0}
        
 

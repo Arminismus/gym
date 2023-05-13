@@ -24,7 +24,7 @@ def agent_policy(observation):
     else:
         return PigEnv.ROLL
          
-env = PigEnv(max_turns=300,opponent_policy=stochastic_policy,epsilon = 0.5,learning_rate=0.03) #setting this to agent policy will not work
+env = PigEnv(max_turns=300,opponent_policy=stochastic_policy,epsilon = 0.1,learning_rate=0.03) #setting this to agent policy will not work
                                                              # as observation[2] is the agent's buffer not the opponent's.
 
 observation, info = env.reset()
