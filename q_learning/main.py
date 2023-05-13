@@ -8,10 +8,10 @@ from tables.savetable import save,load
 from policies.epsilon_greedy import epsilon_greedy
 
 #This is Q-Learning bitch!
-#q_table = defaultdict(lambda:0) 
+q_table = defaultdict(lambda:0) 
 # #a default dictionary for all states, this means we only keep the values for the states we visit.                                               
 #This means we can easily use their values in recurrent formulas without worrying about errors.   
-q_table = load('q_table')
+#q_table = load('q_table')
 import time
 
 #This stochastic policy ties with it's own counter part.
@@ -39,8 +39,8 @@ cumulative_reward = 0
 for i in tqdm(range(10_000)):    
     state,_ = env.reset() #env reset returns observation, info
 
-    terminated = False
-    truncated = False
+    terminated = env.terminated
+    truncated = env.truncated
     while not terminated and not truncated:
         
         #epsilon greedy
@@ -59,7 +59,7 @@ for i in tqdm(range(10_000)):
       
     rewards.append(reward)
     
-save(q_table,'q_table')
+#save(q_table,'q_table')
 print(sum(rewards)/len(rewards))
 
 env.close()
