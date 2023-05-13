@@ -1,4 +1,6 @@
 import dill
+from collections import defaultdict
+q_table = defaultdict(lambda:0)
 
 def save(table,name):
     with open(name,'wb') as fp:

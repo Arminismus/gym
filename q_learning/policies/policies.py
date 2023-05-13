@@ -1,5 +1,7 @@
 import numpy as np
 from env.q_pig import PigEnv
+#from configs.config import q_table
+from tables.savetable import q_table
 
 def stochastic_policy(observation):
     return np.random.randint(0,2)
@@ -14,5 +16,6 @@ def heuristic_opponent_policy(observation):
         return PigEnv.BANK
     else:
         return PigEnv.ROLL
-#def q_policy(observation):
-    #return np.argmax(q_table[observation])
+
+def q_policy(observation):
+    return np.argmax(q_table[observation])
