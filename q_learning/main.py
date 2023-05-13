@@ -1,74 +1,63 @@
 from env.q_pig import PigEnv
 import numpy as np
+
 from collections import defaultdict
 from tqdm import tqdm
+
 import matplotlib.pyplot as plt
 from tables.savetable import save,load
 from policies.epsilon_greedy import epsilon_greedy
+from policies.policies import stochastic_policy,heuristic_agent_policy,heuristic_opponent_policy
+from configs.config import config
 
 
-
-
-
-#This is Q-Learning bitch!
-#q_table = defaultdict(lambda:0) 
-# #a default dictionary for all states, this means we only keep the values for the states we visit.                                               
-#This means we can easily use their values in recurrent formulas without worrying about errors.   
-q_table = load('q_table')
-import time
-
-#This stochastic policy ties with it's own counter part.
-def stochastic_policy(observation):
-    return np.random.randint(0,2)
-
-def heuristic_agent_policy(observation):
-    if observation[2] > 23:
-        return PigEnv.BANK
-    else:
-        return PigEnv.ROLL
-def heuristic_opponent_policy(observation):
-    if env.buffers[0] > 23:
-        return PigEnv.BANK
-    else:
-        return PigEnv.ROLL
+class Main:
+    def __init__(self,test_config):
+        self.q_table = test_config['q_table']
+        self.opponent_policy = test_config['opponent_policy']
+        self.agent_policy = test_config['agent_policy']
+        self._save = test_config['save']
         
-         
-env = PigEnv(max_turns=300,opponent_policy=heuristic_opponent_policy,epsilon = 0.4,learning_rate=0.03) #setting this to agent policy will not work
-                                                             # as observation[2] is the agent's buffer not the opponent's.
+        self.save_name = test_config['save_name']
 
-observation, info = env.reset()
+        self.max_turns = test_config['max_turns']
+        self.iterations = test_config['iterations']
+        self.learning_rate = test_config['learning_rate']
 
+        self.random_policy = test_config['random_policy']
 
-def q_policy(observation):
-    return np.argmax(q_table[observation])
+        self._rewards = []
 
-rewards = []
-
-for i in tqdm(range(100_000)):    
-    state,_ = env.reset() #env reset returns observation, info
-
-    terminated = env.terminated
-    truncated = env.truncated
-    while not terminated and not truncated:
+    def run(self):
+        #create environment
         
-        #epsilon greedy
-        action = epsilon_greedy(env,policy = q_policy,observation = observation,random_policy = stochastic_policy)
-        next_observation, reward, terminated, truncated, info = env.step(action)
+        env = PigEnv(max_turns=self.max_turns,opponent_policy=self.opponent_policy,learning_rate = self.learning_rate)
 
-        old_value = q_table[state, action]
+        #reset the environment
+        observation, info = env.reset()
+        for _ in tqdm(range(self.iterations)):
+            state,_ = env.reset()
+
+            terminated = env.terminated
+            truncated = env.truncated
+
+            while not terminated and not truncated:
+                action = epsilon_greedy(env,policy = self.agent_policy,observation = observation,random_policy=self.random_policy)
+                next_observation, reward, terminated, truncated, info = env.step(action)
+
+                old_value = self.q_table[state,action]
+                next_max = np.max([self.q_table[next_observation, PigEnv.ROLL],self.q_table[next_observation,PigEnv.BANK]])
+                new_value = (1 - env.alpha) * old_value + env.alpha * (reward + env.gamma * next_max)
+
+                self.q_table[state, action] = new_value
+                observation = next_observation
+            
+            self._rewards.append(reward)
         
-        ##Take the maximum over all possible actions in the next state.
-        next_max = np.max([q_table[next_observation, PigEnv.ROLL],q_table[next_observation,PigEnv.BANK]])
+        if self._save:
+            save(self.q_table,self.save_name)
+        print(sum(self._rewards)/len(self._rewards))
 
-        new_value = (1 - env.alpha) * old_value + env.alpha * (reward + env.gamma * next_max)
-               
-        q_table[state, action] = new_value
-        observation = next_observation
-      
-    rewards.append(reward)
-    
-save(q_table,'q_table')
 
-print(sum(rewards)/len(rewards))
-
-env.close()
+run = Main(config)
+run.run()

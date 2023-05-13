@@ -1,6 +1,5 @@
 import dill
 
-
 def save(table,name):
     with open(name,'wb') as fp:
         dill.dump(table,fp)

@@ -57,7 +57,9 @@ class PigEnv(Env):
         self.buffers = [0,0] 
         self.remaining_turns = self.max_turns  
 
-        self.observation = (self.points[PigEnv.AGENT],self.points[PigEnv.OPPONENT],self.buffers[PigEnv.AGENT])
+        #self.observation = (self.points[PigEnv.AGENT],self.points[PigEnv.OPPONENT],self.buffers[PigEnv.AGENT])
+        self.observation = (self.points[PigEnv.AGENT],self.points[PigEnv.OPPONENT],self.buffers[PigEnv.AGENT],self.buffers[PigEnv.OPPONENT])
+
        
 
 
