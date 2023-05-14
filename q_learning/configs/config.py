@@ -1,4 +1,3 @@
-from collections import defaultdict
 from policies.policies import stochastic_policy,heuristic_agent_policy,heuristic_opponent_policy,q_policy
 from tables.savetable import q_table
 
@@ -6,7 +5,7 @@ from tables.savetable import q_table
 
 config = {
     "q_table": q_table,
-    "opponent_policy": stochastic_policy,
+    "opponent_policy": heuristic_opponent_policy,
     "agent_policy": q_policy,
     "save": True,
     "load": False,

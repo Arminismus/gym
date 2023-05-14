@@ -99,7 +99,7 @@ class PigEnv(Env):
              action = self.opponent_policy(self.observation)
              self.get_player_actions(PigEnv.OPPONENT,action)
         
-        self.observation = (self.points[0],self.points[1],self.buffers[PigEnv.AGENT])
+        self.observation = (self.points[0],self.points[1],self.buffers[PigEnv.AGENT],self.buffers[PigEnv.OPPONENT])
         
 
         #if last step
