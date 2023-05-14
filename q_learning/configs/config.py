@@ -5,7 +5,7 @@ from tables.savetable import q_table
 
 config = {
     "q_table": q_table,
-    "opponent_policy": heuristic_opponent_policy,
+    "opponent_policy": stochastic_policy,
     "agent_policy": q_policy,
     "save": True,
     "load": False,
