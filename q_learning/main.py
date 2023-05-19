@@ -4,68 +4,65 @@ import numpy as np
 from collections import defaultdict
 from tqdm import tqdm
 
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from tables.savetable import save,load
 from configs.config import config
-from numba import jit
 
 
-class Main:
-    def __init__(self,test_config):
-        self.q_table = test_config['q_table']
-        self.opponent_policy = test_config['opponent_policy']
-        self.agent_policy = test_config['agent_policy']
-        self._save = test_config['save']
-        
-        self.save_name = test_config['save_name']
+_load = config['load']
+if _load:
+    q_table = load('q_table')
+else:
+    q_table = config['q_table']
 
-        self.max_turns = test_config['max_turns']
-        self.iterations = test_config['iterations']
-        self.learning_rate = test_config['learning_rate']
+opponent_policy = config['opponent_policy']
+agent_policy = config['agent_policy']
+_save = config['save']
+gamma = config['discount_factor']
 
-        self.random_policy = test_config['random_policy']
 
-        self._rewards = []
+save_name = config['save_name']
+max_turns = config['max_turns']
+iterations = config['iterations']
+learning_rate = config['learning_rate']
+random_policy = config['random_policy']
+rewards = []
+
+
+
+    #create environment
+    
+env = PigEnv(max_turns=max_turns,opponent_policy=opponent_policy,learning_rate = learning_rate,discount_factor= gamma)
 
     
-    def run(self):
-        #create environment
+    #reset the environment
+observation, info = env.reset()
+for _ in tqdm(range(iterations)):
+    state,_ = env.reset()
         
-        env = PigEnv(max_turns=self.max_turns,opponent_policy=self.opponent_policy,learning_rate = self.learning_rate)
-        q_table = self.q_table
-
-        #reset the environment
-        observation, info = env.reset()
-        for _ in tqdm(range(self.iterations)):
-            state,_ = env.reset()
-
-            terminated = env.terminated
-            truncated = env.truncated
-
-            while not terminated and not truncated:
-                
-                if np.random.random() > env.epsilon: 
-                    action = self.agent_policy(observation)
-                else:
-                    action = np.random.randint(0,2)
-                
-                next_observation, reward, terminated, truncated, info = env.step(action)
-
-                old_value = q_table[state,action]
-                next_max = np.max([q_table[next_observation, PigEnv.ROLL],q_table[next_observation,PigEnv.BANK]])
-                new_value = (1 - env.alpha) * old_value + env.alpha * (reward + env.gamma * next_max)
-
-                q_table[state, action] = new_value
-                observation = next_observation
+    terminated = False
+    truncated = False
+    while not terminated and not truncated:
             
-            self._rewards.append(reward)
-
+        if np.random.random() > env.epsilon: 
+            action = agent_policy(observation)
+        else:
+            action = np.random.randint(0,2)
+            
+        next_observation, reward, terminated, truncated, info = env.step(action)
+        old_value = q_table[state,action]
+        next_max = np.max([q_table[next_observation, PigEnv.ROLL],q_table[next_observation,PigEnv.BANK]])
+        new_value = (1 - env.alpha) * old_value + env.alpha * (reward + env.gamma * next_max)
+            
+        q_table[state, action] = new_value
+        observation = next_observation
         
-        
-        if self._save:
-            save(self.q_table,self.save_name)
-        print(sum(self._rewards)/len(self._rewards))
+    rewards.append(reward)
+    
+    
+if _save:
+    save(q_table,save_name)
+print(sum(rewards)/len(rewards))
 
 
-run = Main(config)
-run.run()
+

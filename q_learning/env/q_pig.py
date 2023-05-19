@@ -22,9 +22,6 @@ class PigEnv(Env):
 
     AGENT = 1
     OPPONENT = 0
-
-    NUM_ACTIONS = 2
-    NUM_STATES = 101*101*101
     def __init__(
               self,
                 die_sides = 6,
@@ -52,7 +49,9 @@ class PigEnv(Env):
         #self.turn = PigEnv.AGENT
         self.turn = np.random.randint(0,2)
         self.points = {PigEnv.AGENT:0,PigEnv.OPPONENT:0}
+        #self.points = np.zeros(2)
        
+
 
         self.buffers = [0,0] 
         self.remaining_turns = self.max_turns  
@@ -96,21 +95,16 @@ class PigEnv(Env):
            self.get_player_actions(PigEnv.AGENT,action) 
             
         elif self.turn == PigEnv.OPPONENT:
-             action = self.opponent_policy(self.observation)
-             self.get_player_actions(PigEnv.OPPONENT,action)
+            action = self.opponent_policy(self.observation)
+            self.get_player_actions(PigEnv.OPPONENT,action)
         
         self.observation = (self.points[0],self.points[1],self.buffers[PigEnv.AGENT],self.buffers[PigEnv.OPPONENT])
         
 
-        #if last step
-        if self.remaining_turns == 0:
+        #if last step or max_points
+        if self.remaining_turns == 0 or self.points[PigEnv.AGENT] > self.max_points or self.points[PigEnv.OPPONENT] > self.max_points:
             self.reward = self.points[PigEnv.AGENT] > self.points[PigEnv.OPPONENT]
             self.terminated = True   
-
-        #if either player reaches 100 points, the game is over
-        if self.points[PigEnv.AGENT] > self.max_points or self.points[PigEnv.OPPONENT] > self.max_points:
-             self.reward = self.points[PigEnv.AGENT] > self.points[PigEnv.OPPONENT]
-             self.terminated = True
                   
         
         return self.observation, self.reward, self.terminated, self.truncated , self.info  

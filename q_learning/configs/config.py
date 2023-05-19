@@ -8,13 +8,14 @@ config = {
     "opponent_policy": stochastic_policy,
     "agent_policy": q_policy,
     "save": True,
-    "load": False,
+    "load": True,
     "save_name": "my_table",
 
     "iterations": 10000,
     "max_turns": 300,
 
-    "epsilon": 0.4,
+    "epsilon": 0.8,
     "learning_rate":0.03,
+    "discount_factor": 0.999,
     "random_policy": stochastic_policy,  
 }
